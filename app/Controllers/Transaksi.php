@@ -11,16 +11,14 @@ class Transaksi extends Controller
     public function index()
     {
         $model = new TransaksiModel();
-        $data['transaksi'] = $model->select('transaksi.*, barang.nama_barang')
-                                   ->join('barang', 'barang.id = transaksi.barang_id')
-                                   ->findAll();
+        $data['transaksi'] = $model->getTransaksiWithBarang(); // Mendapatkan transaksi beserta nama barang
         return view('transaksi/index', $data);
     }
 
     public function create()
     {
         $barangModel = new BarangModel();
-        $data['barang'] = $barangModel->findAll();
+        $data['barang'] = $barangModel->findAll(); // Mengambil semua data barang untuk dropdown
         return view('transaksi/create', $data);
     }
 
@@ -28,11 +26,12 @@ class Transaksi extends Controller
     {
         $model = new TransaksiModel();
         $data = [
-            'barang_id' => $this->request->getPost('barang_id'),
-            'stok_awal' => $this->request->getPost('stok_awal'),
-            'jumlah_terjual' => $this->request->getPost('jumlah_terjual'),
+            'barang_id'         => $this->request->getPost('barang_id'),
+            'stok_awal'         => $this->request->getPost('stok_awal'),
+            'jumlah_terjual'    => $this->request->getPost('jumlah_terjual'),
             'tanggal_transaksi' => $this->request->getPost('tanggal_transaksi'),
         ];
+
         $model->insert($data);
         return redirect()->to('/transaksi');
     }
@@ -40,18 +39,14 @@ class Transaksi extends Controller
     public function edit($id)
     {
         $model = new TransaksiModel();
-        $barangModel = new BarangModel();
-    
         $data['transaksi'] = $model->find($id);
-        $data['barang']    = $barangModel->findAll();
-    
-        if (empty($data['transaksi'])) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Data Transaksi tidak ditemukan.');
-        }
-    
+
+        $barangModel = new BarangModel();
+        $data['barang'] = $barangModel->findAll(); // Mengambil semua data barang untuk dropdown
+
         return view('transaksi/edit', $data);
     }
-    
+
     public function update($id)
     {
         $model = new TransaksiModel();
@@ -61,15 +56,15 @@ class Transaksi extends Controller
             'jumlah_terjual'    => $this->request->getPost('jumlah_terjual'),
             'tanggal_transaksi' => $this->request->getPost('tanggal_transaksi'),
         ];
+
         $model->update($id, $data);
-        return redirect()->to('/transaksi')->with('status', 'Data Transaksi berhasil diupdate.');
+        return redirect()->to('/transaksi');
     }
-    
+
     public function delete($id)
     {
         $model = new TransaksiModel();
         $model->delete($id);
-        return redirect()->to('/transaksi')->with('status', 'Data Transaksi berhasil dihapus.');
+        return redirect()->to('/transaksi');
     }
-    
 }
